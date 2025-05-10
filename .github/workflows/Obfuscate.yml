@@ -27,21 +27,16 @@ jobs:
         run: |
           npm install -g javascript-obfuscator
           sudo apt-get update
-          sudo apt-get install -y unzip
 
-      - name: 下载并解压最新的 BPB Worker
+      - name: 下载最新的 BPB Worker 文件
         run: |
-          wget https://github.com/bia-pain-bache/BPB-Worker-Panel/releases/latest/download/unobfuscated-worker.zip
-          if [ ! -f "unobfuscated-worker.zip" ]; then
-            echo "错误：未下载到 ZIP 文件"
+          wget https://github.com/bia-pain-bache/BPB-Worker-Panel/releases/latest/download/unobfuscated-worker.js -O origin.js
+          if [ ! -f "origin.js" ]; then
+            echo "错误：未下载到 unobfuscated-worker.js"
+            # 列出最新版本的资产以便调试
+            curl -s https://api.github.com/repos/bia-pain-bache/BPB-Worker-Panel/releases/latest | jq '.assets[] | .name'
             exit 1
           fi
-          unzip -o unobfuscated-worker.zip
-          if [ ! -f "_worker.js" ]; then
-            echo "错误：解压后未找到 _worker.js"
-            exit 1
-          fi
-          mv _worker.js origin.js
 
       - name: 混淆 BPB Worker JS
         run: |
