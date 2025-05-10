@@ -27,14 +27,20 @@ jobs:
         run: |
           npm install -g javascript-obfuscator
           sudo apt-get update
+          sudo apt-get install -y jq
 
-      - name: 下载最新的 BPB Worker 文件
+      - name: 下载 BPB Worker 文件
         run: |
-          wget https://github.com/bia-pain-bache/BPB-Worker-Panel/releases/latest/download/unobfuscated-worker.js -O origin.js
+          # 由于 v3.2.7 已移除非混淆文件，尝试 v3.1.4
+          wget https://github.com/bia-pain-bache/BPB-Worker-Panel/releases/download/v3.1.4/unobfuscated-worker.js -O origin.js || true
           if [ ! -f "origin.js" ]; then
-            echo "错误：未下载到 unobfuscated-worker.js"
-            # 列出最新版本的资产以便调试
-            curl -s https://api.github.com/repos/bia-pain-bache/BPB-Worker-Panel/releases/latest | jq '.assets[] | .name'
+            echo "错误：无法下载 v3.1.4 的 unobfuscated-worker.js"
+            # 列出 v3.2.7 的发布资产以便调试
+            echo "v3.2.7 的发布资产："
+            curl -s https://api.github.com/repos/bia-pain-bache/BPB-Worker-Panel/releases/tags/v3.2.7 | jq '.assets[] | .name'
+            # 列出 v3.1.4 的资产
+            echo "v3.1.4 的发布资产："
+            curl -s https://api.github.com/repos/bia-pain-bache/BPB-Worker-Panel/releases/tags/v3.1.4 | jq '.assets[] | .name'
             exit 1
           fi
 
@@ -63,6 +69,6 @@ jobs:
       - name: 提交并推送更改
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: ':arrow_up: 更新最新的 BPB Panel'
+          commit_message: ':arrow_up: 更新 BPB Panel（基于 v3.1.4）'
           commit_author: 'github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
           file_pattern: '_worker.js'
